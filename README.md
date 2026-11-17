@@ -33,6 +33,27 @@ nextOccurrence(birth.reading, '2026-11-05', dallas);
 
 Works in Node 18+ (CommonJS, with TypeScript types). Each call takes about 1 ms.
 
+## Accuracy
+
+Checked day by day against Nepali patros, with the default `nepal-panchang` method:
+
+| Compared with                                                                       | Checked       | Match                |
+| ----------------------------------------------------------------------------------- | ------------- | -------------------- |
+| Hamro Patro, BS 2067–2084                                                           | 5,537 days    | **98.5%**            |
+| Dallas–Fort Worth wall patro, BS 2083 (Divya-Drishti Nepali Panchang), Dallas times | 384 end times | **376** within 1 min |
+| Older patro data, BS 1970–2074                                                      | 37,933 days   | 92.8%                |
+
+- **Where it differs:** on days when a tithi ends close to sunrise. Patros computed
+  independently disagree with each other on those days too; a typical year has two or
+  three.
+- **Older data:** most misses come in runs of consecutive days, a sign of shifted rows in
+  that data rather than a wrong tithi.
+- **Why not drik by default:** the modern `drik` method matches Hamro Patro on 90.7% of days
+  and only 5 of the 384 Dallas end times. It does match an independent Drik engine
+  (`panchanga`) on all 458 days sampled, so it is there when you want drik results.
+- **Kept honest:** the Dallas patro runs in the test suite (`test/dallas-patro.test.ts`), and
+  `npm run validate:nepal` repeats the Hamro Patro comparison (see [Development](#development)).
+
 ## Using it in an app
 
 1. **Ask for** the date of birth, an optional time of birth (`HH:MM`, 24-hour, local to the
@@ -84,18 +105,8 @@ Pass `{ method }` in the options:
 | `nepal-panchang` (default) | Surya Siddhanta Sun and Moon with the Nepal panchang committee's correction, read at a modern sunrise | **98.5%**                                      |
 | `drik`                     | Modern ephemeris (astronomy-engine), as Drik Panchang uses                                            | 90.7%                                          |
 
-The two methods only disagree when a tithi changes within a few hours of sunrise.
-
-**Outside Nepal.** A Dallas–Fort Worth wall patro for BS 2083, printed from the
-Divya-Drishti Nepali Panchang, gives tithi end times in Dallas time. `nepal-panchang`
-matches 376 of its 384 end times within a minute; `drik` matches 5. The patro's day tithis
-follow Dallas sunrise, as this package does.
-
-**Older data.** On a scrape covering BS 1970–2074 (37,933 days), `nepal-panchang` matches
-92.8% and `drik` 85.4%. Most misses come in runs of consecutive days, a sign of shifted rows
-in that data.
-
-`drik` matched an independent Drik engine (`panchanga`) on all 458 days sampled.
+The two methods only disagree when a tithi changes within a few hours of sunrise. See
+[Accuracy](#accuracy) for how each was measured.
 
 ## Rules the code follows
 
